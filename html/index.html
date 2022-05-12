@@ -32,9 +32,6 @@
 
     <script>
       anychart.onDocumentReady(function () {
-        // The data used in this sample can be obtained from the CDN
-        // https://cdn.anychart.com/samples/stock-event-markers/stock-chart-with-event-markers/data.csv
-
         var dataTable = anychart.data.table();
         dataTable.addData(get_binance_data());
 
@@ -86,7 +83,7 @@
         var chart = anychart.stock();
 
         // set chart title
-        chart.title("SOLUSDT Futures");
+        chart.title("SOLUSDT Futures chart");
 
         // create first plot on the chart and set settings
         var plot = chart.plot(0);
