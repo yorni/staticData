@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: always
+    tty: true
+    ports:
+      - "80:80"
+  volumes:      
+    - ./html:/var/www/html
