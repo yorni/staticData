@@ -29,6 +29,31 @@
     </style>
   </head>
   <body>
+    <label for="start">Start from:</label>
+
+    <input
+      type="text"
+      id="start"
+      name="start"
+      required
+      minlength="0"
+      maxlength="20"
+      size="10"
+      value="1652274711592"
+    />
+    <label for="end">Ends on:</label>
+
+    <input
+      type="text"
+      id="end"
+      name="end"
+      required
+      minlength="0"
+      maxlength="20"
+      size="10"
+      value="1652274799622"
+    />
+    <button onclick="getData()">Load data</button>
     <div id="container"></div>
     <div id="containerDepth"></div>
 
@@ -37,15 +62,22 @@
       let dataTableStock = anychart.data.table();
       var dataSetAsks = anychart.data.set();
       var dataSetBids = anychart.data.set();
+      var dataSetSO = anychart.data.set();
+      let chartsLoaded = false;
       anychart.onDocumentReady(function () {
         getData();
       });
 
       async function getData() {
-        await drawCandlesChar();
-        await drawColumnsChart();
+        if (!chartsLoaded) {
+          await drawCandlesChar();
+          //await drawColumnsChart();
+          await drawColumnsChartSO();
+        }
+        let start = document.querySelector("#start").value;
+        let end = document.querySelector("#end").value;
         let url =
-          "http://95.217.208.90:8000/trades/SOLUSDT/1652274711592/1652274799622";
+          "http://95.217.208.90:8000/trades/SOLUSDT/" + start + "/" + end;
         fetch(url)
           .then(function (response) {
             return response.json();
@@ -112,7 +144,8 @@
         // initiate chart drawing
         chart.draw();
         chart.listen("click", function (e) {
-          drawDepth();
+          //drawDepth();
+          drawDepthSO();
         });
         chart.tooltip().format(function (e) {
           xVal = e.x;
@@ -121,7 +154,7 @@
 
       async function drawColumnsChart() {
         let chart = anychart.column();
-        chart.title().text("Click on Column to Add a 5 to it's value ");
+
         // set data
         let columnsAsks = chart.column(dataSetAsks);
         columnsAsks.color("red");
@@ -132,6 +165,21 @@
         chart.draw();
       }
 
+      async function drawColumnsChartSO() {
+        let chart = anychart.column();
+
+        let columnsBids = chart.column(dataSetSO.mapAs({ x: 0, value: 1 }));
+        columnsBids.color("green");
+        columnsBids.name("Bids");
+        let columnsAsks = chart.column(dataSetSO.mapAs({ x: 0, value: 2 }));
+        columnsAsks.color("red");
+        columnsAsks.name("Asks");
+        chart.title("Asks and Bids SO");
+        chart.container("containerDepth");
+        chart.legend().enabled(true).fontSize(13).padding([0, 0, 20, 0]);
+        chart.draw();
+        chartsLoaded = true;
+      }
       async function drawDepth() {
         let url = "http://95.217.208.90:8000/depth/SOLUSDT/" + xVal;
         fetch(url)
@@ -141,6 +189,19 @@
           .then(function (data) {
             dataSetAsks.data(data.asks);
             dataSetBids.data(data.bids);
+          })
+          .catch(function (e) {
+            console.log("error loading data", e);
+          });
+      }
+      async function drawDepthSO() {
+        let url = "http://95.217.208.90:8000/depth/so/SOLUSDT/" + xVal;
+        fetch(url)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            dataSetSO.data(data);
           })
           .catch(function (e) {
             console.log("error loading data", e);
