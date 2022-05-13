@@ -5,7 +5,7 @@
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-stock.min.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js"></script>
-    <script src="./getData.js"></script>
+
     <link
       href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css"
       type="text/css"
@@ -33,13 +33,17 @@
     <div id="containerDepth"></div>
 
     <script>
-      let chart1 = undefined;
-      let chart2 = undefined;
       let xVal = 0;
+      let dataTableStock = anychart.data.table();
+      var dataSetAsks = anychart.data.set();
+      var dataSetBids = anychart.data.set();
       anychart.onDocumentReady(function () {
         getData();
       });
+
       async function getData() {
+        await drawCandlesChar();
+        await drawColumnsChart();
         let url =
           "http://95.217.208.90:8000/trades/SOLUSDT/1652274711592/1652274799622";
         fetch(url)
@@ -47,76 +51,85 @@
             return response.json();
           })
           .then(function (data) {
-            var dataTable = anychart.data.table();
-            dataTable.addData(data);
-
-            // map loaded data for the ohlc series
-            var mapping = dataTable.mapAs({
-              open: 1,
-              high: 1,
-              low: 1,
-              close: 1,
-              value: 2,
-            });
-
-            // create stock chart
-            var chart = anychart.stock();
-
-            // set chart title
-            chart.title("SOLUSDT Futures chart new");
-
-            // create first plot on the chart and set settings
-            var plot = chart.plot(0);
-            plot
-              .height("200px")
-              .yGrid(true)
-              .xGrid(true)
-              .yMinorGrid(true)
-              .xMinorGrid(true);
-
-            // create candlestick series
-            var series = plot.candlestick(mapping);
-            series.name("SOLUSDT Futures");
-            series.legendItem().iconType("rising-falling");
-
-            // create second plot
-            var volumePlot = chart.plot(1);
-            volumePlot
-              .height("200px")
-              .yGrid(true)
-              .xGrid(true)
-              .yMinorGrid(true)
-              .xMinorGrid(true);
-            // set yAxis labels formatter
-            volumePlot.yAxis().labels().format("{%Value}{scale:(1000)(1)|(k)}");
-            // set crosshair y-label formatter
-            volumePlot
-              .crosshair()
-              .yLabel()
-              .format("{%Value}{scale:(1000)(1)|(k)}");
-
-            // create volume series on the plot
-            var volumeSeries = volumePlot.line(mapping);
-            // set series settings
-            volumeSeries.name("Volume");
-
-            ////////////////////////////////////////////////
-
-            // set container id for the chart
-            chart.container("container");
-            // initiate chart drawing
-            chart.draw();
-
-            chart.listen("click", function (e) {
-              drawDepth();
-            });
-            chart.tooltip().format(function (e) {
-              xVal = e.x;
-            });
+            dataTableStock.addData(data);
           })
           .catch(function () {
             console.log("error loading data");
           });
+      }
+      async function drawCandlesChar() {
+        // map loaded data for the ohlc series
+        var mapping = dataTableStock.mapAs({
+          open: 1,
+          high: 1,
+          low: 1,
+          close: 1,
+          value: 2,
+        });
+
+        // create stock chart
+        var chart = anychart.stock();
+
+        // set chart title
+        chart.title("SOLUSDT Futures chart new");
+
+        // create first plot on the chart and set settings
+        var plot = chart.plot(0);
+        plot
+          .height("200px")
+          .yGrid(true)
+          .xGrid(true)
+          .yMinorGrid(true)
+          .xMinorGrid(true);
+
+        // create candlestick series
+        var series = plot.candlestick(mapping);
+        series.name("SOLUSDT Futures");
+        series.legendItem().iconType("rising-falling");
+
+        // create second plot
+        var volumePlot = chart.plot(1);
+        volumePlot
+          .height("200px")
+          .yGrid(true)
+          .xGrid(true)
+          .yMinorGrid(true)
+          .xMinorGrid(true);
+        // set yAxis labels formatter
+        volumePlot.yAxis().labels().format("{%Value}{scale:(1000)(1)|(k)}");
+        // set crosshair y-label formatter
+        volumePlot.crosshair().yLabel().format("{%Value}{scale:(1000)(1)|(k)}");
+
+        // create volume series on the plot
+        var volumeSeries = volumePlot.line(mapping);
+        // set series settings
+        volumeSeries.name("Volume");
+
+        ////////////////////////////////////////////////
+
+        // set container id for the chart
+        chart.container("container");
+        // initiate chart drawing
+        chart.draw();
+        chart.listen("click", function (e) {
+          drawDepth();
+        });
+        chart.tooltip().format(function (e) {
+          xVal = e.x;
+        });
+      }
+
+      async function drawColumnsChart() {
+        let chart = anychart.column();
+        chart.title().text("Click on Column to Add a 5 to it's value ");
+        // set data
+        let columnsAsks = chart.column(dataSetAsks);
+        columnsAsks.color("red");
+        let columnsBids = chart.column(dataSetBids);
+        columnsBids.color("green");
+        chart.title("Asks and Bids");
+        chart.container("containerDepth");
+        chart.draw();
       }
 
       async function drawDepth() {
@@ -126,49 +139,11 @@
             return response.json();
           })
           .then(function (data) {
-            console.log(data);
-            chart1 = anychart.line();
-            // create a line series and set the data
-
-            var series = chart1.line(data.asks);
-
-            // set the chart title
-            chart1.title("Asks");
-
-            // set the titles of the axes
-            var xAxis = chart1.xAxis();
-            xAxis.title("price");
-            var yAxis = chart1.yAxis();
-            yAxis.title("volume");
-
-            // set the container id
-            chart1.container("containerDepth");
-
-            // initiate drawing the chart
-            chart1.draw();
-
-            chart2 = anychart.line();
-            // create a line series and set the data
-
-            var series = chart2.line(data.bids);
-
-            // set the chart title
-            chart2.title("Bids");
-
-            // set the titles of the axes
-            var xAxis = chart2.xAxis();
-            xAxis.title("price");
-            var yAxis = chart2.yAxis();
-            yAxis.title("volume");
-
-            // set the container id
-            chart2.container("containerDepth");
-
-            // initiate drawing the chart
-            chart2.draw();
+            dataSetAsks.data(data.asks);
+            dataSetBids.data(data.bids);
           })
-          .catch(function () {
-            console.log("error loading data");
+          .catch(function (e) {
+            console.log("error loading data", e);
           });
       }
     </script>
