@@ -19,10 +19,18 @@
     <style type="text/css">
       html,
       body,
-      #container,
+      #container {
+        width: 100%;
+        height: 600px;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body,
       #containerDepth {
         width: 100%;
-        height: 350px;
+        height: 300px;
         margin: 0;
         padding: 0;
       }
@@ -56,7 +64,7 @@
       minlength="0"
       maxlength="20"
       size="10"
-      value="1652443670146"
+      value="1652443661457"
     />
     <label for="end">Ends on:</label>
 
@@ -68,7 +76,7 @@
       minlength="0"
       maxlength="20"
       size="10"
-      value="1652443770146"
+      value="1652443681457"
     />
     <button onclick="getData()">Load data</button>
     <div id="container"></div>
@@ -124,6 +132,21 @@
           value: 2,
         });
 
+        mappingDealsQty = dataTableStock.mapAs();
+        mappingDealsQty.addField("value", 3);
+
+        mappingDealsQtyBM = dataTableStock.mapAs();
+        mappingDealsQtyBM.addField("value", 4);
+
+        mappingDealsQtyNonBM = dataTableStock.mapAs();
+        mappingDealsQtyNonBM.addField("value", 5);
+
+        mappingVolBM = dataTableStock.mapAs();
+        mappingVolBM.addField("value", 6);
+
+        mappingVolNonBM = dataTableStock.mapAs();
+        mappingVolNonBM.addField("value", 7);
+
         // create stock chart
         var chart = anychart.stock();
 
@@ -133,7 +156,7 @@
         // create first plot on the chart and set settings
         var plot = chart.plot(0);
         plot
-          .height("200px")
+          .height("300px")
           .yGrid(true)
           .xGrid(true)
           .yMinorGrid(true)
@@ -147,7 +170,7 @@
         // create second plot
         var volumePlot = chart.plot(1);
         volumePlot
-          .height("200px")
+          .height("300px")
           .yGrid(true)
           .xGrid(true)
           .yMinorGrid(true)
@@ -161,6 +184,36 @@
         var volumeSeries = volumePlot.line(mapping);
         // set series settings
         volumeSeries.name("Volume");
+
+        // create volume series on the plot
+        var volumeSeriesBM = volumePlot.line(mappingVolBM);
+        // set series settings
+        volumeSeriesBM.name("VolumeBM");
+
+        // create volume series on the plot
+        var volumeSeriesNonBM = volumePlot.line(mappingVolNonBM);
+        // set series settings
+        volumeSeriesNonBM.name("VolumeNonBM");
+
+        var QtyPlot = chart.plot(2);
+        QtyPlot.height("300px")
+          .yGrid(true)
+          .xGrid(true)
+          .yMinorGrid(true)
+          .xMinorGrid(true);
+        // set yAxis labels formatter
+        QtyPlot.yAxis().labels().format("{%Value}{scale:(1)(1)|()}");
+        // set crosshair y-label formatter
+        QtyPlot.crosshair().yLabel().format("{%Value}{scale:(1)(1)|()}");
+
+        // QtySeries = QtyPlot.line(mappingDealsQty);
+        // QtySeries.name("DealsQty");
+
+        // QtySeriesBM = QtyPlot.line(mappingDealsQtyBM);
+        // QtySeriesBM.name("DealsQtyBM");
+
+        // QtySeriesNonBM = QtyPlot.line(mappingDealsQtyNonBM);
+        // QtySeriesNonBM.name("DealsQtyNonBM");
 
         ////////////////////////////////////////////////
 
