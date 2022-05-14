@@ -29,6 +29,18 @@
     </style>
   </head>
   <body>
+    <select name="ticker" id="ticker">
+      <option value="SOLUSDT" selected>SOLUSDT</option>
+      <option value="GMTUSDT">GMTUSDT</option>
+    </select>
+    <select name="depthPercent" id="depthPercent">
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+
     <label for="start">Start from:</label>
 
     <input
@@ -39,7 +51,7 @@
       minlength="0"
       maxlength="20"
       size="10"
-      value="1652274711592"
+      value="1652443670146"
     />
     <label for="end">Ends on:</label>
 
@@ -51,7 +63,7 @@
       minlength="0"
       maxlength="20"
       size="10"
-      value="1652274799622"
+      value="1652443770146"
     />
     <button onclick="getData()">Load data</button>
     <div id="container"></div>
@@ -64,6 +76,8 @@
       var dataSetBids = anychart.data.set();
       var dataSetSO = anychart.data.set();
       let chartsLoaded = false;
+      let ticker = "SOLUSDT";
+      let percentDepth = "1";
       anychart.onDocumentReady(function () {
         getData();
       });
@@ -76,8 +90,14 @@
         }
         let start = document.querySelector("#start").value;
         let end = document.querySelector("#end").value;
+        ticker = document.querySelector("#ticker").value;
         let url =
-          "http://95.217.208.90:8000/trades/SOLUSDT/" + start + "/" + end;
+          "http://95.217.208.90:8000/trades/" +
+          ticker +
+          "/" +
+          start +
+          "/" +
+          end;
         fetch(url)
           .then(function (response) {
             return response.json();
@@ -181,7 +201,7 @@
         chartsLoaded = true;
       }
       async function drawDepth() {
-        let url = "http://95.217.208.90:8000/depth/SOLUSDT/" + xVal;
+        let url = "http://95.217.208.90:8000/depth/" + ticker + "/" + xVal;
         fetch(url)
           .then(function (response) {
             return response.json();
@@ -195,7 +215,14 @@
           });
       }
       async function drawDepthSO() {
-        let url = "http://95.217.208.90:8000/depth/so/SOLUSDT/" + xVal;
+        percentDepth = document.querySelector("#depthPercent").value;
+        let url =
+          "http://95.217.208.90:8000/depth/sop/" +
+          ticker +
+          "/" +
+          xVal +
+          "/" +
+          percentDepth;
         fetch(url)
           .then(function (response) {
             return response.json();
