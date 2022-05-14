@@ -31,8 +31,8 @@
   <body>
     <label for="ticker">Ticker:</label>
     <select name="ticker" id="ticker">
-      <option value="SOLUSDT" selected>SOLUSDT</option>
-      <option value="GMTUSDT">GMTUSDT</option>
+      <option value="SOLUSDT">SOLUSDT</option>
+      <option value="GMTUSDT" selected>GMTUSDT</option>
     </select>
     <label for="depthPercent">Depth percent:</label>
     <select name="depthPercent" id="depthPercent">
@@ -78,7 +78,7 @@
       var dataSetBids = anychart.data.set();
       var dataSetSO = anychart.data.set();
       let chartsLoaded = false;
-      let ticker = "SOLUSDT";
+      let ticker = "GMTUSDT";
       let percentDepth = "1";
       anychart.onDocumentReady(function () {
         getData();
