@@ -5,6 +5,7 @@
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-stock.min.js"></script>
     <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js"></script>
+    <script src="https://cdn.anychart.com/locale/2.0.1/en-us.js"></script>
 
     <link
       href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css"
@@ -39,6 +40,7 @@
   <body>
     <label for="ticker">Ticker:</label>
     <select name="ticker" id="ticker">
+      <option value="BTCUSDT">BTCUSDT</option>
       <option value="SOLUSDT">SOLUSDT</option>
       <option value="GMTUSDT" selected>GMTUSDT</option>
     </select>
@@ -64,7 +66,7 @@
       minlength="0"
       maxlength="20"
       size="10"
-      value="1652443661457"
+      value="1652505000000"
     />
     <label for="end">Ends on:</label>
 
@@ -76,7 +78,7 @@
       minlength="0"
       maxlength="20"
       size="10"
-      value="1652443681457"
+      value="1652508000000"
     />
     <button onclick="getData()">Load data</button>
     <div id="container"></div>
@@ -151,7 +153,7 @@
         var chart = anychart.stock();
 
         // set chart title
-        chart.title("SOLUSDT Futures chart new");
+        chart.title(ticker + " Futures chart");
 
         // create first plot on the chart and set settings
         var plot = chart.plot(0);
@@ -161,10 +163,31 @@
           .xGrid(true)
           .yMinorGrid(true)
           .xMinorGrid(true);
+        plot
+          .xAxis()
+          .labels()
+          .format(function () {
+            return anychart.format.dateTime(this.value, "yyyy.MM.dd", -3 * 60);
+          });
+
+        plot
+          .crosshair()
+          .xLabel()
+          .format(function () {
+            return anychart.format.dateTime(this.value, "hh:mm:ss", -3 * 60);
+          });
+
+        chart.tooltip().titleFormat(function () {
+          return anychart.format.dateTime(
+            this.points[0].x,
+            "yyyy.MM.dd hh:mm:ss:SSS",
+            -3 * 60
+          );
+        });
 
         // create candlestick series
         var series = plot.candlestick(mapping);
-        series.name("SOLUSDT Futures");
+        series.name(ticker + " Futures");
         series.legendItem().iconType("rising-falling");
 
         // create second plot
@@ -252,7 +275,7 @@
         let columnsAsks = chart.column(dataSetSO.mapAs({ x: 0, value: 2 }));
         columnsAsks.color("red");
         columnsAsks.name("Asks");
-        chart.title("Asks and Bids SO");
+        chart.title("Asks and Bids");
         chart.container("containerDepth");
         chart.legend().enabled(true).fontSize(13).padding([0, 0, 20, 0]);
         chart.draw();
