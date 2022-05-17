@@ -22,7 +22,7 @@
       body,
       #container {
         width: 100%;
-        height: 600px;
+        height: 1px;
         margin: 0;
         padding: 0;
       }
@@ -81,12 +81,14 @@
       value="1652508000000"
     />
     <button onclick="getData()">Load data</button>
+    <button onclick="drawLastDepthAndTradesActivity()">Last depth</button>
     <div id="container"></div>
     <div id="containerDepth"></div>
 
     <script>
-      let xVal = 0;
+      let xVal = -1;
       let dataTableStock = anychart.data.table();
+      let dataSetTrades = anychart.data.set();
       var dataSetAsks = anychart.data.set();
       var dataSetBids = anychart.data.set();
       var dataSetSO = anychart.data.set();
@@ -229,15 +231,6 @@
         // set crosshair y-label formatter
         QtyPlot.crosshair().yLabel().format("{%Value}{scale:(1)(1)|()}");
 
-        // QtySeries = QtyPlot.line(mappingDealsQty);
-        // QtySeries.name("DealsQty");
-
-        // QtySeriesBM = QtyPlot.line(mappingDealsQtyBM);
-        // QtySeriesBM.name("DealsQtyBM");
-
-        // QtySeriesNonBM = QtyPlot.line(mappingDealsQtyNonBM);
-        // QtySeriesNonBM.name("DealsQtyNonBM");
-
         ////////////////////////////////////////////////
 
         // set container id for the chart
@@ -279,6 +272,45 @@
         chart.container("containerDepth");
         chart.legend().enabled(true).fontSize(13).padding([0, 0, 20, 0]);
         chart.draw();
+
+        let chart2 = anychart.line();
+
+        let lineQtyMarketBuy = chart2.line(
+          dataSetTrades.mapAs({ x: 0, value: 1 })
+        );
+        lineQtyMarketBuy.color("green");
+        lineQtyMarketBuy.name("lineQtyMarketBuy");
+
+        let lineQtyMarketSell = chart2.line(
+          dataSetTrades.mapAs({ x: 0, value: 2 })
+        );
+        lineQtyMarketSell.color("red");
+        lineQtyMarketSell.name("lineQtyMarketSell");
+
+        chart2.title("Market buy and sell quantity");
+        chart2.container("containerDepth");
+        chart2.legend().enabled(true).fontSize(13).padding([0, 0, 20, 0]);
+        chart2.draw();
+
+        let chart3 = anychart.line();
+
+        let lineVolMarketBuy = chart3.line(
+          dataSetTrades.mapAs({ x: 0, value: 3 })
+        );
+        lineVolMarketBuy.color("green");
+        lineVolMarketBuy.name("lineVolMarketBuy");
+
+        let lineVolMarketSell = chart3.line(
+          dataSetTrades.mapAs({ x: 0, value: 4 })
+        );
+        lineVolMarketSell.color("red");
+        lineVolMarketSell.name("lineVolMarketSell");
+
+        chart3.title("Market buy and sell volume");
+        chart3.container("containerDepth");
+        chart3.legend().enabled(true).fontSize(13).padding([0, 0, 20, 0]);
+        chart3.draw();
+
         chartsLoaded = true;
       }
       async function drawDepth() {
@@ -310,6 +342,22 @@
           })
           .then(function (data) {
             dataSetSO.data(data);
+          })
+          .catch(function (e) {
+            console.log("error loading data", e);
+          });
+      }
+
+      async function drawLastDepthAndTradesActivity() {
+        percentDepth = document.querySelector("#depthPercent").value;
+        let url = "http://95.217.208.90:8000/la/" + ticker + "/" + percentDepth;
+        fetch(url)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            dataSetSO.data(data.depth);
+            dataSetTrades.data(data.trades);
           })
           .catch(function (e) {
             console.log("error loading data", e);
