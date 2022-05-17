@@ -22,7 +22,7 @@
       body,
       #container {
         width: 100%;
-        height: 1px;
+        height: 300px;
         margin: 0;
         padding: 0;
       }
@@ -31,7 +31,7 @@
       body,
       #containerDepth {
         width: 100%;
-        height: 300px;
+        height: 250px;
         margin: 0;
         padding: 0;
       }
@@ -48,6 +48,8 @@
     <select name="depthPercent" id="depthPercent">
       <option value="0.1">0.1</option>
       <option value="0.2">0.2</option>
+      <option value="0.3">0.3</option>
+      <option value="0.4">0.4</option>
       <option value="0.5">0.5</option>
       <option value="1" selected>1</option>
       <option value="2">2</option>
@@ -81,7 +83,7 @@
       value="1652508000000"
     />
     <button onclick="getData()">Load data</button>
-    <button onclick="drawLastDepthAndTradesActivity()">Last depth</button>
+    <button onclick="realtimeData()">Realtime data</button>
     <div id="container"></div>
     <div id="containerDepth"></div>
 
@@ -95,6 +97,7 @@
       let chartsLoaded = false;
       let ticker = "GMTUSDT";
       let percentDepth = "1";
+      let timerId = 0;
       anychart.onDocumentReady(function () {
         getData();
       });
@@ -136,21 +139,6 @@
           value: 2,
         });
 
-        mappingDealsQty = dataTableStock.mapAs();
-        mappingDealsQty.addField("value", 3);
-
-        mappingDealsQtyBM = dataTableStock.mapAs();
-        mappingDealsQtyBM.addField("value", 4);
-
-        mappingDealsQtyNonBM = dataTableStock.mapAs();
-        mappingDealsQtyNonBM.addField("value", 5);
-
-        mappingVolBM = dataTableStock.mapAs();
-        mappingVolBM.addField("value", 6);
-
-        mappingVolNonBM = dataTableStock.mapAs();
-        mappingVolNonBM.addField("value", 7);
-
         // create stock chart
         var chart = anychart.stock();
 
@@ -191,45 +179,6 @@
         var series = plot.candlestick(mapping);
         series.name(ticker + " Futures");
         series.legendItem().iconType("rising-falling");
-
-        // create second plot
-        var volumePlot = chart.plot(1);
-        volumePlot
-          .height("300px")
-          .yGrid(true)
-          .xGrid(true)
-          .yMinorGrid(true)
-          .xMinorGrid(true);
-        // set yAxis labels formatter
-        volumePlot.yAxis().labels().format("{%Value}{scale:(1000)(1)|(k)}");
-        // set crosshair y-label formatter
-        volumePlot.crosshair().yLabel().format("{%Value}{scale:(1000)(1)|(k)}");
-
-        // create volume series on the plot
-        var volumeSeries = volumePlot.line(mapping);
-        // set series settings
-        volumeSeries.name("Volume");
-
-        // create volume series on the plot
-        var volumeSeriesBM = volumePlot.line(mappingVolBM);
-        // set series settings
-        volumeSeriesBM.name("VolumeBM");
-
-        // create volume series on the plot
-        var volumeSeriesNonBM = volumePlot.line(mappingVolNonBM);
-        // set series settings
-        volumeSeriesNonBM.name("VolumeNonBM");
-
-        var QtyPlot = chart.plot(2);
-        QtyPlot.height("300px")
-          .yGrid(true)
-          .xGrid(true)
-          .yMinorGrid(true)
-          .xMinorGrid(true);
-        // set yAxis labels formatter
-        QtyPlot.yAxis().labels().format("{%Value}{scale:(1)(1)|()}");
-        // set crosshair y-label formatter
-        QtyPlot.crosshair().yLabel().format("{%Value}{scale:(1)(1)|()}");
 
         ////////////////////////////////////////////////
 
@@ -330,27 +279,12 @@
       async function drawDepthSO() {
         percentDepth = document.querySelector("#depthPercent").value;
         let url =
-          "http://95.217.208.90:8000/depth/sop/" +
+          "http://95.217.208.90:8000/la/" +
           ticker +
           "/" +
-          xVal +
+          percentDepth +
           "/" +
-          percentDepth;
-        fetch(url)
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (data) {
-            dataSetSO.data(data);
-          })
-          .catch(function (e) {
-            console.log("error loading data", e);
-          });
-      }
-
-      async function drawLastDepthAndTradesActivity() {
-        percentDepth = document.querySelector("#depthPercent").value;
-        let url = "http://95.217.208.90:8000/la/" + ticker + "/" + percentDepth;
+          xVal;
         fetch(url)
           .then(function (response) {
             return response.json();
@@ -362,6 +296,31 @@
           .catch(function (e) {
             console.log("error loading data", e);
           });
+      }
+
+      async function drawLastDepthAndTradesActivity() {
+        percentDepth = document.querySelector("#depthPercent").value;
+        let url =
+          "http://95.217.208.90:8000/la/" + ticker + "/" + percentDepth + "/0";
+        fetch(url)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            dataSetSO.data(data.depth);
+            dataSetTrades.data(data.trades);
+          })
+          .catch(function (e) {
+            console.log("error loading data", e);
+          });
+      }
+      function realtimeData() {
+        if (timerId == 0) {
+          timerId = setInterval(drawLastDepthAndTradesActivity, 1000);
+        } else {
+          clearInterval(timerId);
+          timerId = 0;
+        }
       }
     </script>
   </body>
