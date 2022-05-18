@@ -108,8 +108,16 @@
           //await drawColumnsChart();
           await drawColumnsChartSO();
         }
-        let start = document.querySelector("#start").value;
-        let end = document.querySelector("#end").value;
+
+        if (timerId == 0) {
+          start = document.querySelector("#start").value;
+          end = document.querySelector("#end").value;
+        } else {
+          end = new Date().getTime();
+          start = end - 5000;
+          console.log(start);
+        }
+
         ticker = document.querySelector("#ticker").value;
         let url =
           "http://95.217.208.90:8000/trades/" +
@@ -123,6 +131,7 @@
             return response.json();
           })
           .then(function (data) {
+            dataTableStock.remove(null, null);
             dataTableStock.addData(data);
           })
           .catch(function () {
@@ -299,6 +308,7 @@
       }
 
       async function drawLastDepthAndTradesActivity() {
+        //getData();
         percentDepth = document.querySelector("#depthPercent").value;
         let url =
           "http://95.217.208.90:8000/la/" + ticker + "/" + percentDepth + "/0";
