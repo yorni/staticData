@@ -236,13 +236,13 @@
         let lineQtyMarketBuy = chart2.line(
           dataSetTrades.mapAs({ x: 0, value: 1 })
         );
-        lineQtyMarketBuy.color("green");
+        lineQtyMarketBuy.color("red");
         lineQtyMarketBuy.name("lineQtyMarketBuy");
 
         let lineQtyMarketSell = chart2.line(
           dataSetTrades.mapAs({ x: 0, value: 2 })
         );
-        lineQtyMarketSell.color("red");
+        lineQtyMarketSell.color("green");
         lineQtyMarketSell.name("lineQtyMarketSell");
 
         chart2.title("Market buy and sell quantity 60 sec");
@@ -255,13 +255,13 @@
         let lineVolMarketBuy = chart3.line(
           dataSetTrades.mapAs({ x: 0, value: 3 })
         );
-        lineVolMarketBuy.color("green");
+        lineVolMarketBuy.color("red");
         lineVolMarketBuy.name("lineVolMarketBuy");
 
         let lineVolMarketSell = chart3.line(
           dataSetTrades.mapAs({ x: 0, value: 4 })
         );
-        lineVolMarketSell.color("red");
+        lineVolMarketSell.color("green");
         lineVolMarketSell.name("lineVolMarketSell");
 
         chart3.title("Market buy and sell volume 60 sec");
@@ -319,6 +319,8 @@
           .then(function (data) {
             dataSetSO.data(data.depth);
             dataSetTrades.data(data.trades);
+            dataTableStock.remove(null, null);
+            dataTableStock.addData(data.tradesGraph);
           })
           .catch(function (e) {
             console.log("error loading data", e);
