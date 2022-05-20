@@ -221,10 +221,10 @@
         let chart = anychart.column();
 
         let columnsBids = chart.column(dataSetSO.mapAs({ x: 0, value: 1 }));
-        columnsBids.color("green");
+        columnsBids.color("red");
         columnsBids.name("Bids");
         let columnsAsks = chart.column(dataSetSO.mapAs({ x: 0, value: 2 }));
-        columnsAsks.color("red");
+        columnsAsks.color("green");
         columnsAsks.name("Asks");
         chart.title("Asks and Bids");
         chart.container("containerDepth");
@@ -236,13 +236,13 @@
         let lineQtyMarketBuy = chart2.line(
           dataSetTrades.mapAs({ x: 0, value: 1 })
         );
-        lineQtyMarketBuy.color("red");
+        lineQtyMarketBuy.color("green");
         lineQtyMarketBuy.name("lineQtyMarketBuy");
 
         let lineQtyMarketSell = chart2.line(
           dataSetTrades.mapAs({ x: 0, value: 2 })
         );
-        lineQtyMarketSell.color("green");
+        lineQtyMarketSell.color("red");
         lineQtyMarketSell.name("lineQtyMarketSell");
 
         chart2.title("Market buy and sell quantity 60 sec");
@@ -255,13 +255,13 @@
         let lineVolMarketBuy = chart3.line(
           dataSetTrades.mapAs({ x: 0, value: 3 })
         );
-        lineVolMarketBuy.color("red");
+        lineVolMarketBuy.color("green");
         lineVolMarketBuy.name("lineVolMarketBuy");
 
         let lineVolMarketSell = chart3.line(
           dataSetTrades.mapAs({ x: 0, value: 4 })
         );
-        lineVolMarketSell.color("green");
+        lineVolMarketSell.color("red");
         lineVolMarketSell.name("lineVolMarketSell");
 
         chart3.title("Market buy and sell volume 60 sec");
