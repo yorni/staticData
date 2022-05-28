@@ -20,6 +20,24 @@
     <style type="text/css">
       html,
       body,
+      #containerLeft {
+        width: 80%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body,
+      #containerRight {
+        width: 20%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        float: right;
+      }
+
+      html,
+      body,
       #container {
         width: 100%;
         height: 300px;
@@ -40,7 +58,9 @@
   <body>
     <label for="ticker">Ticker:</label>
     <select name="ticker" id="ticker">
-      <option value="BTCUSDT">BTCUSDT</option>
+      <option value="BTCUSDT" selected>BTCUSDT</option>
+      <option value="ETHUSDT">ETHUSDT</option>
+      <option value="BNBUSDT">BNBUSDT</option>
       <option value="SOLUSDT">SOLUSDT</option>
       <option value="GMTUSDT" selected>GMTUSDT</option>
     </select>
@@ -50,8 +70,8 @@
       <option value="0.2">0.2</option>
       <option value="0.3">0.3</option>
       <option value="0.4">0.4</option>
-      <option value="0.5">0.5</option>
-      <option value="1" selected>1</option>
+      <option value="0.5" selected>0.5</option>
+      <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
       <option value="4">4</option>
@@ -82,11 +102,32 @@
       size="10"
       value="1652508000000"
     />
+    <label for="minDepth">Min depth:</label>
+
+    <input
+      type="text"
+      id="minDepth"
+      name="minDepth"
+      required
+      minlength="0"
+      maxlength="8"
+      size="10"
+      value="50000"
+    />
     <button onclick="getData()">Load data</button>
     <button onclick="realtimeData()">Realtime data</button>
-    <div id="container"></div>
-    <div id="containerDepth"></div>
-
+    <div id="containerMain">
+      <div id="containerLeft">
+        <div id="container"></div>
+        <div id="containerDepth"></div>
+      </div>
+      <div id="containerRight">
+        <h2>Asks</h2>
+        <ul id="asks"></ul>
+        <h2>Bids</h2>
+        <ul id="bids"></ul>
+      </div>
+    </div>
     <script>
       let xVal = -1;
       let dataTableStock = anychart.data.table();
@@ -98,6 +139,12 @@
       let ticker = "GMTUSDT";
       let percentDepth = "1";
       let timerId = 0;
+      let depthLevels = {
+        bids: {},
+        asks: {},
+      };
+      //level = {key:{active:true,volume:1,activityTime:1,distanceToMarket:0.1}}
+
       anychart.onDocumentReady(function () {
         getData();
       });
@@ -119,8 +166,13 @@
         }
 
         ticker = document.querySelector("#ticker").value;
+
+        base_url = "95.217.208.90";
+
         let url =
-          "http://95.217.208.90:8000/trades/" +
+          "http://" +
+          base_url +
+          ":8000/candles/" +
           ticker +
           "/" +
           start +
@@ -142,10 +194,10 @@
         // map loaded data for the ohlc series
         var mapping = dataTableStock.mapAs({
           open: 1,
-          high: 1,
-          low: 1,
-          close: 1,
-          value: 2,
+          high: 2,
+          low: 3,
+          close: 4,
+          value: 5,
         });
 
         // create stock chart
@@ -234,13 +286,13 @@
         let chart2 = anychart.line();
 
         let lineQtyMarketBuy = chart2.line(
-          dataSetTrades.mapAs({ x: 0, value: 1 })
+          dataSetTrades.mapAs({ x: 0, value: 6 })
         );
         lineQtyMarketBuy.color("green");
         lineQtyMarketBuy.name("lineQtyMarketBuy");
 
         let lineQtyMarketSell = chart2.line(
-          dataSetTrades.mapAs({ x: 0, value: 2 })
+          dataSetTrades.mapAs({ x: 0, value: 7 })
         );
         lineQtyMarketSell.color("red");
         lineQtyMarketSell.name("lineQtyMarketSell");
@@ -253,13 +305,13 @@
         let chart3 = anychart.line();
 
         let lineVolMarketBuy = chart3.line(
-          dataSetTrades.mapAs({ x: 0, value: 3 })
+          dataSetTrades.mapAs({ x: 0, value: 8 })
         );
         lineVolMarketBuy.color("green");
         lineVolMarketBuy.name("lineVolMarketBuy");
 
         let lineVolMarketSell = chart3.line(
-          dataSetTrades.mapAs({ x: 0, value: 4 })
+          dataSetTrades.mapAs({ x: 0, value: 9 })
         );
         lineVolMarketSell.color("red");
         lineVolMarketSell.name("lineVolMarketSell");
@@ -272,7 +324,9 @@
         chartsLoaded = true;
       }
       async function drawDepth() {
-        let url = "http://95.217.208.90:8000/depth/" + ticker + "/" + xVal;
+        base_url = "95.217.208.90";
+
+        let url = "http://" + base_url + ":8000/depth/" + ticker + "/" + xVal;
         fetch(url)
           .then(function (response) {
             return response.json();
@@ -287,8 +341,13 @@
       }
       async function drawDepthSO() {
         percentDepth = document.querySelector("#depthPercent").value;
+
+        base_url = "95.217.208.90";
+
         let url =
-          "http://95.217.208.90:8000/la/" +
+          "http://" +
+          base_url +
+          ":8000/la/" +
           ticker +
           "/" +
           percentDepth +
@@ -307,20 +366,116 @@
           });
       }
 
+      function loadDepthData(depth) {
+        lDepth = { bids: {}, asks: {} };
+        minDepth = Number(document.querySelector("#minDepth").value);
+        depth.forEach((depthLevel) => {
+          lDepth.bids[depthLevel[0]] = depthLevel[1];
+          lDepth.asks[depthLevel[0]] = depthLevel[2];
+        });
+
+        //Удаляем уровни которые сняли или меньше минимального
+        Object.keys(depthLevels.bids).forEach((key) => {
+          if (!(key in lDepth.bids) || lDepth.bids[key] < minDepth) {
+            delete depthLevels.bids[key];
+          }
+        });
+        Object.keys(depthLevels.asks).forEach((key) => {
+          if (!(key in lDepth.asks) || lDepth.asks[key] < minDepth) {
+            delete depthLevels.asks[key];
+          }
+        });
+
+        depth.forEach((depthLevel) => {
+          //Бид больше нашего минимального
+          if (depthLevel[1] > minDepth) {
+            if (!depthLevels.bids[depthLevel[0]]) {
+              depthLevels.bids[depthLevel[0]] = {
+                active: true,
+                volume: 0,
+                activityTime: 0,
+                distanceToMarket: 0,
+              };
+            }
+            depthLevels.bids[depthLevel[0]].volume = depthLevel[1];
+            depthLevels.bids[depthLevel[0]].activityTime++;
+          }
+          //Аск больше нашего минимального
+          if (depthLevel[2] > minDepth) {
+            if (!depthLevels.asks[depthLevel[0]]) {
+              depthLevels.asks[depthLevel[0]] = {
+                active: true,
+                volume: 0,
+                activityTime: 0,
+                distanceToMarket: 0,
+              };
+            }
+            depthLevels.asks[depthLevel[0]].volume = depthLevel[2];
+            depthLevels.asks[depthLevel[0]].activityTime++;
+          }
+        });
+
+        bidsElement = document.getElementById("bids");
+        asksElement = document.getElementById("asks");
+        bidsElement.innerHTML = "";
+        asksElement.innerHTML = "";
+
+        Object.keys(depthLevels.asks)
+          .sort(function (a, b) {
+            return Number(a) - Number(b);
+          })
+          .forEach((key) => {
+            asksElement.innerHTML +=
+              "<li>" +
+              key +
+              " " +
+              depthLevels.asks[key].volume +
+              " " +
+              depthLevels.asks[key].activityTime +
+              "</li>";
+          });
+
+        Object.keys(depthLevels.bids)
+          .sort(function (a, b) {
+            return Number(b) - Number(a);
+          })
+          .forEach((key) => {
+            bidsElement.innerHTML +=
+              "<li>" +
+              key +
+              " " +
+              depthLevels.bids[key].volume +
+              " " +
+              depthLevels.bids[key].activityTime +
+              "</li>";
+          });
+      }
       async function drawLastDepthAndTradesActivity() {
         //getData();
+        ticker = document.querySelector("#ticker").value;
         percentDepth = document.querySelector("#depthPercent").value;
+
+        base_url = "95.217.208.90";
+
         let url =
-          "http://95.217.208.90:8000/la/" + ticker + "/" + percentDepth + "/0";
+          "http://" +
+          base_url +
+          ":8000/la/" +
+          ticker +
+          "/" +
+          percentDepth +
+          "/0";
         fetch(url)
           .then(function (response) {
             return response.json();
           })
           .then(function (data) {
             dataSetSO.data(data.depth);
+            loadDepthData(data.depth);
+            //console.log(data.depth);
             dataSetTrades.data(data.trades);
             dataTableStock.remove(null, null);
-            dataTableStock.addData(data.tradesGraph);
+            dataTableStock.addData(data.trades);
           })
           .catch(function (e) {
             console.log("error loading data", e);
@@ -333,6 +488,10 @@
           clearInterval(timerId);
           timerId = 0;
         }
+        depthLevels = {
+          bids: {},
+          asks: {},
+        };
       }
     </script>
   </body>
