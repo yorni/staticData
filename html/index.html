@@ -211,8 +211,8 @@
 
         // create first plot on the chart and set settings
         var plot = chart.plot(0);
-        plot.yScale().minimumGap(2);
-        plot.yScale().maximumGap(2);
+        plot.yScale().minimumGap(0.0);
+        plot.yScale().maximumGap(0.0);
         // access the annotations() object of the plot to work with annotations
         controller = plot.annotations();
 
