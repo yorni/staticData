@@ -432,14 +432,13 @@
 
         asksAr = Object.keys(depthLevels.asks).sort(function (a, b) {
           console.log(a, b, depthLevels.asks[a], depthLevels.asks[b]);
-          return depthLevels.asks[a] - depthLevels.asks[b];
+          return depthLevels.asks[b].volume - depthLevels.asks[a].volume;
         });
         bidsAr = Object.keys(depthLevels.bids).sort(function (a, b) {
-          return depthLevels.bids[a] - depthLevels.bids[b];
+          return depthLevels.bids[b].volume - depthLevels.bids[a].volume;
         });
         maxAskVol = asksAr[0];
         maxBidVol = bidsAr[0];
-        console.log(asksAr, bidsAr);
         Object.keys(depthLevels.asks)
           .sort(function (a, b) {
             return Number(a) - Number(b);
