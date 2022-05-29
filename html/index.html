@@ -41,7 +41,7 @@
       body,
       #container {
         width: 100%;
-        height: 600px;
+        height: 900px;
         margin: 0;
         padding: 0;
       }
@@ -211,8 +211,8 @@
 
         // create first plot on the chart and set settings
         var plot = chart.plot(0);
-        plot.yScale().minimumGap(0.0);
-        plot.yScale().maximumGap(0.0);
+        plot.yScale().minimumGap(0.2);
+        plot.yScale().maximumGap(0.2);
         // access the annotations() object of the plot to work with annotations
         controller = plot.annotations();
 
