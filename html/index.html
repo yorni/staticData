@@ -431,14 +431,15 @@
         controller.removeAllAnnotations();
 
         asksAr = Object.keys(depthLevels.asks).sort(function (a, b) {
-          return depthLevels.asks[b] - depthLevels.asks[a];
+          console.log(a, b, depthLevels.asks[a], depthLevels.asks[b]);
+          return depthLevels.asks[a] - depthLevels.asks[b];
         });
         bidsAr = Object.keys(depthLevels.bids).sort(function (a, b) {
-          return depthLevels.bids[b] - depthLevels.bids[a];
+          return depthLevels.bids[a] - depthLevels.bids[b];
         });
         maxAskVol = asksAr[0];
         maxBidVol = bidsAr[0];
-        console.log(maxAskVol, maxBidVol);
+        console.log(asksAr, bidsAr);
         Object.keys(depthLevels.asks)
           .sort(function (a, b) {
             return Number(a) - Number(b);
