@@ -123,9 +123,9 @@
         <div id="containerDepth"></div>
       </div>
       <div id="containerRight">
-        <h2>Asks</h2>
+        <h2 style="color: #00ff00">Asks</h2>
         <ul id="asks"></ul>
-        <h2>Bids</h2>
+        <h2 style="color: #ff0000">Bids</h2>
         <ul id="bids"></ul>
       </div>
     </div>
@@ -430,24 +430,40 @@
 
         controller.removeAllAnnotations();
 
+        asksAr = Object.keys(depthLevels.asks).sort(function (a, b) {
+          return depthLevels.asks[b] - depthLevels.asks[a];
+        });
+        bidsAr = Object.keys(depthLevels.bids).sort(function (a, b) {
+          return depthLevels.bids[b] - depthLevels.bids[a];
+        });
+        maxAskVol = asksAr[0];
+        maxBidVol = bidsAr[0];
+        console.log(maxAskVol, maxBidVol);
         Object.keys(depthLevels.asks)
           .sort(function (a, b) {
             return Number(a) - Number(b);
           })
           .forEach((key) => {
             // create a Horizontal Line annotation
+            strokeVal = "1 #00FF00";
+            if (key == maxAskVol) {
+              strokeVal = "3 #00FF00";
+            }
             controller.horizontalLine({
               valueAnchor: Number(key),
-              stroke: "2 #00FF00",
+              stroke: strokeVal,
             });
-
+            bold1 = key == maxAskVol ? "<b style='color:#00FF00'>" : "";
+            bold2 = key == maxAskVol ? "</b>" : "";
             asksElement.innerHTML +=
               "<li>" +
+              bold1 +
               key +
               " " +
               depthLevels.asks[key].volume +
               " " +
               depthLevels.asks[key].activityTime +
+              bold2 +
               "</li>";
           });
 
@@ -456,19 +472,28 @@
             return Number(b) - Number(a);
           })
           .forEach((key) => {
+            strokeVal = "1 #FF0000";
+            if (key == maxBidVol) {
+              strokeVal = "3 #FF0000";
+            }
             // create a Horizontal Line annotation
             controller.horizontalLine({
               valueAnchor: Number(key),
-              stroke: "2 #FF0000",
+              stroke: strokeVal,
             });
+
+            bold1 = key == maxBidVol ? "<b style='color:#FF0000'>" : "";
+            bold2 = key == maxBidVol ? "</b>" : "";
 
             bidsElement.innerHTML +=
               "<li>" +
+              bold1 +
               key +
               " " +
               depthLevels.bids[key].volume +
               " " +
               depthLevels.bids[key].activityTime +
+              bold2 +
               "</li>";
           });
       }
