@@ -170,7 +170,6 @@
         } else {
           end = new Date().getTime();
           start = end - 5000;
-          console.log(start);
         }
 
         ticker = document.querySelector("#ticker").value;
@@ -379,7 +378,7 @@
           });
       }
 
-      function loadDepthData(depth) {
+      function loadDepthData(depth, lastPrice) {
         lDepth = { bids: {}, asks: {} };
         minDepth = Number(document.querySelector("#minDepth").value);
         depth.forEach((depthLevel) => {
@@ -436,7 +435,6 @@
         controller.removeAllAnnotations();
 
         asksAr = Object.keys(depthLevels.asks).sort(function (a, b) {
-          console.log(a, b, depthLevels.asks[a], depthLevels.asks[b]);
           return depthLevels.asks[b].volume - depthLevels.asks[a].volume;
         });
         bidsAr = Object.keys(depthLevels.bids).sort(function (a, b) {
@@ -461,15 +459,20 @@
             bold1 = key == maxAskVol ? "<b style='color:#00FF00'>" : "";
             bold2 = key == maxAskVol ? "</b>" : "";
             asksElement.innerHTML +=
-              "<li>" +
+              "<li><h3>" +
               bold1 +
               key +
-              " " +
+              " | " +
               depthLevels.asks[key].volume +
-              " " +
+              " | " +
               depthLevels.asks[key].activityTime +
+              " | " +
+              Math.floor(
+                ((Number(key) - lastPrice) / Number(key)) * 100 * 1000
+              ) /
+                1000 +
               bold2 +
-              "</li>";
+              "</h3></li>";
           });
 
         Object.keys(depthLevels.bids)
@@ -491,15 +494,18 @@
             bold2 = key == maxBidVol ? "</b>" : "";
 
             bidsElement.innerHTML +=
-              "<li>" +
+              "<li><h3>" +
               bold1 +
               key +
-              " " +
+              " | " +
               depthLevels.bids[key].volume +
-              " " +
+              " | " +
               depthLevels.bids[key].activityTime +
+              " | " +
+              Math.floor(((lastPrice - Number(key)) / lastPrice) * 100 * 1000) /
+                1000 +
               bold2 +
-              "</li>";
+              "</h3></li>";
           });
       }
       async function drawLastDepthAndTradesActivity() {
@@ -522,8 +528,10 @@
             return response.json();
           })
           .then(function (data) {
+            lastPrice = data.trades[data.trades.length - 1][4];
+
             dataSetSO.data(data.depth);
-            loadDepthData(data.depth);
+            loadDepthData(data.depth, lastPrice);
             //console.log(data.depth);
             dataSetTrades.data(data.trades);
             dataTableStock.remove(null, null);
