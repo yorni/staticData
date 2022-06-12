@@ -263,8 +263,8 @@
         var series = plot.candlestick(mapping);
         series.name(ticker + " Futures");
         series.legendItem().iconType("rising-falling");
-        var ema50 = plot.ema(mapping, 30).series();
-        ema50.stroke("#ffa000");
+        // var ema50 = plot.ema(mapping, 30).series();
+        // ema50.stroke("#ffa000");
         ////////////////////////////////////////////////
 
         // set container id for the chart
@@ -463,9 +463,9 @@
             // create a Horizontal Line annotation
 
             strokeVal = "1 #00FF00";
-            if (key >= limitDepth) {
+
+            if (depthLevels.asks[key].volume >= limitDepth) {
               strokeVal = "3 #00FF00";
-              console.log(key);
             }
             if (key == maxAskVol) {
               strokeVal = "5 #00FF00";
@@ -500,7 +500,7 @@
           })
           .forEach((key) => {
             strokeVal = "1 #FF0000";
-            if (key >= limitDepth) {
+            if (depthLevels.bids[key].volume >= limitDepth) {
               strokeVal = "3 #FF0000";
             }
             if (key == maxBidVol) {
