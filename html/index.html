@@ -120,6 +120,16 @@
       size="10"
       value="50000"
     />
+    <input
+      type="text"
+      id="limitDepth"
+      name="limitDepth"
+      required
+      minlength="0"
+      maxlength="8"
+      size="10"
+      value="200000"
+    />
     <button onclick="getData()">Load data</button>
     <button onclick="realtimeData()">Realtime data</button>
     <div id="containerMain">
@@ -252,7 +262,8 @@
         var series = plot.candlestick(mapping);
         series.name(ticker + " Futures");
         series.legendItem().iconType("rising-falling");
-
+        var ema50 = plot.ema(mapping, 30).series();
+        ema50.stroke("#ffa000");
         ////////////////////////////////////////////////
 
         // set container id for the chart
@@ -429,6 +440,7 @@
 
         bidsElement = document.getElementById("bids");
         asksElement = document.getElementById("asks");
+        limitDepth = document.getElementById("limitDepth");
         bidsElement.innerHTML = "";
         asksElement.innerHTML = "";
 
@@ -451,6 +463,9 @@
             strokeVal = "1 #00FF00";
             if (key == maxAskVol) {
               strokeVal = "3 #00FF00";
+            }
+            if (key >= limitDepth) {
+              strokeVal = "2 #00FF00";
             }
             controller.horizontalLine({
               valueAnchor: Number(key),
@@ -483,6 +498,9 @@
             strokeVal = "1 #FF0000";
             if (key == maxBidVol) {
               strokeVal = "3 #FF0000";
+            }
+            if (key > limitDepth) {
+              strokeVal = "2 #FF0000";
             }
             // create a Horizontal Line annotation
             controller.horizontalLine({
