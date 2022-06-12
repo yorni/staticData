@@ -463,10 +463,10 @@
             // create a Horizontal Line annotation
             strokeVal = "1 #00FF00";
             if (key == maxAskVol) {
-              strokeVal = "3 #00FF00";
+              strokeVal = "5 #00FF00";
             }
             if (key >= limitDepth) {
-              strokeVal = "2 #00FF00";
+              strokeVal = "3 #00FF00";
             }
             controller.horizontalLine({
               valueAnchor: Number(key),
@@ -498,10 +498,10 @@
           .forEach((key) => {
             strokeVal = "1 #FF0000";
             if (key == maxBidVol) {
-              strokeVal = "3 #FF0000";
+              strokeVal = "5 #FF0000";
             }
             if (key > limitDepth) {
-              strokeVal = "2 #FF0000";
+              strokeVal = "3 #FF0000";
             }
             // create a Horizontal Line annotation
             controller.horizontalLine({
