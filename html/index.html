@@ -461,10 +461,11 @@
           })
           .forEach((key) => {
             // create a Horizontal Line annotation
-            console.log(limitDepth);
+
             strokeVal = "1 #00FF00";
             if (key >= limitDepth) {
               strokeVal = "3 #00FF00";
+              console.log(key);
             }
             if (key == maxAskVol) {
               strokeVal = "5 #00FF00";
