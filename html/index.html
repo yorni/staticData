@@ -154,6 +154,7 @@
       var dataSetSO = anychart.data.set();
       // access the annotations() object of the plot to work with annotations
       var controller = {};
+      let chartDr;
       let chartsLoaded = false;
       let ticker = "GMTUSDT";
       let percentDepth = "1";
@@ -201,11 +202,70 @@
             return response.json();
           })
           .then(function (data) {
+            controller.removeAllAnnotations();
             dataTableStock.remove(null, null);
-            dataTableStock.addData(data);
+            dataTableStock.addData(data.trades);
+            arrOpenDeals = [];
+
+            data.deals.forEach((deal) => {
+              // console.log(deal[0]);
+              // arrOpenDeals.push(deal[0]);
+
+              if (deal[2] == "long") {
+                controller.marker({
+                  valueAnchor: deal[3],
+                  xAnchor: deal[0],
+                  size: 30,
+                  markerType: "arrowUp",
+                  color: "#00FF00",
+                });
+                if (deal[5] > 0) {
+                  controller.marker({
+                    valueAnchor: deal[4],
+                    xAnchor: deal[1],
+                    size: 30,
+                    markerType: "arrowDown",
+                    color: "#0000FF",
+                  });
+                } else {
+                  controller.marker({
+                    valueAnchor: deal[4],
+                    xAnchor: deal[1],
+                    size: 30,
+                    markerType: "arrowDown",
+                    color: "#FF0000",
+                  });
+                }
+              } else {
+                controller.marker({
+                  valueAnchor: deal[3],
+                  xAnchor: deal[0],
+                  size: 30,
+                  markerType: "arrowDown",
+                  color: "#00FF00",
+                });
+                if (deal[5] > 0) {
+                  controller.marker({
+                    valueAnchor: deal[4],
+                    xAnchor: deal[1],
+                    size: 30,
+                    markerType: "arrowUp",
+                    color: "#0000FF",
+                  });
+                } else {
+                  controller.marker({
+                    valueAnchor: deal[4],
+                    xAnchor: deal[1],
+                    size: 30,
+                    markerType: "arrowUp",
+                    color: "#FF0000",
+                  });
+                }
+              }
+            });
           })
-          .catch(function () {
-            console.log("error loading data");
+          .catch(function (e) {
+            console.log("error loading data ", e);
           });
       }
       async function drawCandlesChar() {
@@ -220,7 +280,7 @@
 
         // create stock chart
         var chart = anychart.stock();
-
+        chartDr = chart;
         // set chart title
         chart.title(ticker + " Futures chart");
 
